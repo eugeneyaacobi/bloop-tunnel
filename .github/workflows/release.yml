@@ -1,0 +1,97 @@
+name: bloop-tunnel-release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-client-release-assets:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+            archive_ext: tar.gz
+          - goos: linux
+            goarch: arm64
+            archive_ext: tar.gz
+          - goos: darwin
+            goarch: amd64
+            archive_ext: tar.gz
+          - goos: darwin
+            goarch: arm64
+            archive_ext: tar.gz
+          - goos: windows
+            goarch: amd64
+            archive_ext: zip
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Resolve release metadata
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_EVENT_NAME}" = "release" ]; then
+            VERSION="${GITHUB_EVENT_RELEASE_TAG_NAME}"
+          elif [ "${GITHUB_REF_TYPE:-}" = "tag" ]; then
+            VERSION="${GITHUB_REF_NAME}"
+          else
+            VERSION="manual-${GITHUB_RUN_NUMBER}"
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "commit=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+          echo "date=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
+      - name: Build native client binary
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 0
+          VERSION: ${{ steps.meta.outputs.version }}
+          COMMIT: ${{ steps.meta.outputs.commit }}
+          BUILD_DATE: ${{ steps.meta.outputs.date }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          PKG="bloop-client-${VERSION}-${GOOS}-${GOARCH}"
+          STAGE="dist/${PKG}"
+          mkdir -p "$STAGE"
+
+          EXT=""
+          if [ "$GOOS" = "windows" ]; then EXT=".exe"; fi
+
+          LDFLAGS="-s -w -X bloop-tunnel/pkg/version.Version=${VERSION} -X bloop-tunnel/pkg/version.Commit=${COMMIT} -X bloop-tunnel/pkg/version.Date=${BUILD_DATE}"
+
+          go build -trimpath -ldflags="$LDFLAGS" -o "$STAGE/bloop-client${EXT}" ./cmd/bloop-client
+
+          cp README.md "$STAGE/README.md"
+          cp docs/CLIENT_INSTALL.md "$STAGE/CLIENT_INSTALL.md"
+          mkdir -p "$STAGE/deploy/examples"
+          cp deploy/examples/client.example.yaml "$STAGE/deploy/examples/client.example.yaml"
+
+          if [ "${{ matrix.archive_ext }}" = "zip" ]; then
+            (cd dist && zip -r "${PKG}.zip" "${PKG}")
+          else
+            tar -C dist -czf "dist/${PKG}.tar.gz" "${PKG}"
+          fi
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.version }}
+          generate_release_notes: true
+          files: |
+            dist/*.tar.gz
+            dist/*.zip
