@@ -1,11 +1,7 @@
-bin/
+.claude/
+.agents/
+.specify/
 dist/
-coverage.out
+*.local.yaml
 .env
 .env.*
-*.local.yaml
-*.local.yml
-*.secret.yaml
-*.secret.yml
-*.log
-.DS_Store

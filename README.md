@@ -1,55 +1,38 @@
 # bloop-tunnel
 
-Private-first HTTP tunnel client for exposing local services through `bloop.to`.
+`bloop-tunnel` is the production client package for exposing local HTTP services through `bloop.to`.
 
-This repository is the **client-side package**: it is for the user/local machine that connects outward to a relay. The relay/server component should be packaged with the rest of the server infrastructure or moved to its own repository.
+This repository’s release surface is **`bloop-client` only**: the agent that runs on a customer or operator machine, connects outbound to the relay, and publishes configured local services.
 
-## Status
+Server-side relay infrastructure is not part of this package’s install or release story.
 
-Early implementation. See `specs/001-v1-http-tunnels/` for the original combined-system spec and implementation notes.
+## What `bloop-client` does
 
-## What this repo ships
+- enrolls with the control plane
+- receives scoped runtime credentials
+- connects outbound to the relay
+- registers configured HTTP tunnels
+- reports runtime status back to the control plane
 
-This repo's public install and release story is centered on one binary:
+## Install and run
 
-- `bloop-client` — the local agent that connects to the relay and exposes your local HTTP service
+See [`docs/CLIENT_INSTALL.md`](docs/CLIENT_INSTALL.md) for:
 
-`bloop-relay` is server-side infrastructure and is no longer part of this repository's user-facing native release artifacts.
-
-## Runtime ingest (v1)
-
-The production-shaped ingest path is client-owned:
-- the client enrolls with control-plane
-- the client receives a scoped ingest token
-- the client reports runtime truth directly to control-plane
-
-## Install the client
-
-See `docs/CLIENT_INSTALL.md` for:
-- Docker install/run
-- native macOS/Linux/Windows usage
-- config examples
+- release artifact names by platform
+- Docker usage
+- native macOS, Linux, and Windows usage
+- config shape and examples
 - verification steps
-- AI agent / automation hints
 
+## Release expectations
 
-## CI and release artifacts
+GitHub releases for this repository publish native archives for `bloop-client` on:
 
-GitHub Actions handles verification and client-native release packaging:
+- Linux (`amd64`, `arm64`)
+- macOS (`amd64`, `arm64`)
+- Windows (`amd64`)
 
-- `.github/workflows/ci.yml`
-  - runs `go test ./...`
-  - cross-builds `bloop-client` for Linux, macOS, and Windows
-  - uploads per-platform client artifacts for PR/push validation
-
-- `.github/workflows/release.yml`
-  - triggers on `v*` tags, published releases, or manual dispatch
-  - builds versioned native archives for `bloop-client`
-  - uploads release assets to the GitHub Release
-
-### Expected GitHub release assets
-
-Each release should include archives like:
+Expected asset names:
 
 - `bloop-client-vX.Y.Z-linux-amd64.tar.gz`
 - `bloop-client-vX.Y.Z-linux-arm64.tar.gz`
@@ -58,11 +41,12 @@ Each release should include archives like:
 - `bloop-client-vX.Y.Z-windows-amd64.zip`
 
 Each archive contains:
-- `bloop-client`
-- client install docs
-- example client config
 
-## Local build examples
+- `bloop-client`
+- the client install guide
+- example client configuration
+
+## Local build
 
 Build the client locally:
 
@@ -70,12 +54,12 @@ Build the client locally:
 go build -o dist/bloop-client ./cmd/bloop-client
 ```
 
-Cross-build an example native artifact locally:
+Example cross-build:
 
 ```bash
 GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -o dist/bloop-client-windows-amd64.exe ./cmd/bloop-client
 ```
 
-## Server-side relay
+## Scope
 
-The server-side relay now belongs in the separate `bloop-relay` repository/package. This repository is focused on `bloop-client` only.
+This repository is the canonical home for the end-user and operator machine-local client runtime: `bloop-client`.
