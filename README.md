@@ -2,9 +2,7 @@
 
 `bloop-tunnel` is the production client package for exposing local HTTP services through `bloop.to`.
 
-This repository’s release surface is **`bloop-client` only**: the agent that runs on a customer or operator machine, connects outbound to the relay, and publishes configured local services.
-
-Server-side relay infrastructure is not part of this package’s install or release story.
+This repository’s release surface is **`bloop-client` only**: the agent that runs on a customer or operator machine and publishes configured local services.
 
 ## What `bloop-client` does
 
