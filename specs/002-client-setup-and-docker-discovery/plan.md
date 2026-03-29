@@ -1,11 +1,11 @@
-# Implementation Plan: bloop-client interactive setup, production defaults, and Docker endpoint discovery
+# Implementation Plan: bloop-tunnel interactive setup, production defaults, and Docker endpoint discovery
 
 **Branch**: `[002-client-setup-and-docker-discovery]` | **Date**: 2026-03-28 | **Spec**: `/root/.openclaw/workspace/bloop-tunnel/specs/002-client-setup-and-docker-discovery/spec.md`
 **Input**: Feature specification from `/specs/002-client-setup-and-docker-discovery/spec.md`
 
 ## Summary
 
-Add an operator-friendly setup layer to `bloop-client` that supports guided terminal configuration, env-only Docker deployments with unlimited tunnel definitions, production-ready defaults for hosted `bloop.to` infrastructure, and optional Docker socket discovery for container-backed services. Update documentation and frontend guidance so the installation flow, runtime expectations, and product copy all reflect the same configuration model.
+Add an operator-friendly setup layer to `bloop-tunnel` that supports guided terminal configuration, env-only Docker deployments with unlimited tunnel definitions, production-ready defaults for hosted `bloop.to` infrastructure, and optional Docker socket discovery for container-backed services. Update documentation and frontend guidance so the installation flow, runtime expectations, and product copy all reflect the same configuration model.
 
 ## Technical Context
 
@@ -50,7 +50,7 @@ specs/002-client-setup-and-docker-discovery/
 
 ```text
 cmd/
-└── bloop-client/
+└── bloop-tunnel/
 
 internal/
 ├── client/
@@ -75,7 +75,7 @@ docs/
 ### Runtime Components
 
 1. **Interactive Setup Command**
-   - Runs as a dedicated `bloop-client` subcommand (for example `setup` or `init`).
+   - Runs as a dedicated `bloop-tunnel` subcommand (for example `setup` or `init`).
    - Collects operator input, validates it, and writes output in one of several modes.
    - Supports both new config creation and editing existing config.
 
@@ -103,12 +103,12 @@ docs/
 
 ### Proposed commands
 
-- `bloop-client run` (explicit runtime command; optional if current default main remains)
-- `bloop-client setup`
-- `bloop-client setup --config /path/client.yaml`
-- `bloop-client setup --print-env`
-- `bloop-client setup --output env-file`
-- `bloop-client setup --discover-docker`
+- `bloop-tunnel run` (explicit runtime command; optional if current default main remains)
+- `bloop-tunnel setup`
+- `bloop-tunnel setup --config /path/client.yaml`
+- `bloop-tunnel setup --print-env`
+- `bloop-tunnel setup --output env-file`
+- `bloop-tunnel setup --discover-docker`
 
 ### Setup flow
 
@@ -241,7 +241,7 @@ Because frontend code likely lives outside this repo, plan/tasks should mark tho
 - Add tests for merge behavior and validation.
 
 ### Phase 2 - Interactive CLI setup
-- Add `bloop-client setup` command.
+- Add `bloop-tunnel setup` command.
 - Implement prompt flow, validation, output writers, and existing-config editing.
 - Add tests for interactive and non-interactive modes.
 
@@ -259,7 +259,7 @@ Because frontend code likely lives outside this repo, plan/tasks should mark tho
 
 - What exact hosted relay URL should become the production default alongside `https://api.bloop.to`?
 - Should env tunnel definitions merge with file tunnels or replace them entirely when any env tunnel is present?
-- Should `bloop-client` keep backward-compatible single-command runtime behavior, or move to explicit subcommands (`setup`, `run`)?
+- Should `bloop-tunnel` keep backward-compatible single-command runtime behavior, or move to explicit subcommands (`setup`, `run`)?
 - Which prompt library offers the best balance of portability and minimal dependency weight?
 - How aggressive should Docker discovery exclusion heuristics be for common infrastructure containers?
 

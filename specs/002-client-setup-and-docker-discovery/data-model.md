@@ -1,4 +1,4 @@
-# Data Model: bloop-client interactive setup, production defaults, and Docker endpoint discovery
+# Data Model: bloop-tunnel interactive setup, production defaults, and Docker endpoint discovery
 
 ## Interactive Setup Session
 

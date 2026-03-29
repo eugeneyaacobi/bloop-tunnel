@@ -1,6 +1,6 @@
-# Quickstart: interactive setup and env-only Docker for bloop-client
+# Quickstart: interactive setup and env-only Docker for bloop-tunnel
 
-This guide shows the new operator paths for configuring `bloop-client` without hand-authoring YAML unless you actually want to.
+This guide shows the new operator paths for configuring `bloop-tunnel` without hand-authoring YAML unless you actually want to.
 
 ## Setup paths
 
@@ -9,7 +9,7 @@ This guide shows the new operator paths for configuring `bloop-client` without h
 Use the setup command to generate client configuration with guided prompts:
 
 ```bash
-bloop-client setup
+bloop-tunnel setup
 ```
 
 Expected defaults:
@@ -29,19 +29,19 @@ Typical flow:
 ### Write YAML config
 
 ```bash
-bloop-client setup --config ./client.yaml
+bloop-tunnel setup --config ./client.yaml
 ```
 
 ### Print `.env` template
 
 ```bash
-bloop-client setup --output env-file > .env.bloop-client
+bloop-tunnel setup --output env-file > .env.bloop-tunnel
 ```
 
 ### Print Compose-ready environment block
 
 ```bash
-bloop-client setup --output compose-block
+bloop-tunnel setup --output compose-block
 ```
 
 ## Option B: Docker with environment variables only
@@ -50,8 +50,8 @@ Example Compose fragment:
 
 ```yaml
 services:
-  bloop-client:
-    image: ghcr.io/bloop/bloop-client:latest
+  bloop-tunnel:
+    image: ghcr.io/bloop/bloop-tunnel:latest
     environment:
       BLOOP_CONTROL_PLANE_URL: https://api.bloop.to
       BLOOP_RELAY_URL: wss://relay.bloop.to/connect
@@ -78,7 +78,7 @@ services:
 The traditional config file path remains supported:
 
 ```bash
-bloop-client -config ./client.yaml
+bloop-tunnel -config ./client.yaml
 ```
 
 ## Optional Docker discovery
@@ -90,8 +90,8 @@ Example local run:
 ```bash
 docker run --rm -it \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  ghcr.io/bloop/bloop-client:latest \
-  bloop-client setup --discover-docker
+  ghcr.io/bloop/bloop-tunnel:latest \
+  bloop-tunnel setup --discover-docker
 ```
 
 Behavior expectations:

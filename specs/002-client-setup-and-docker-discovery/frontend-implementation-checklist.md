@@ -98,7 +98,7 @@ Align frontend setup guidance, install surfaces, and runtime terminology with sp
 - client install docs embedded in frontend
 
 **Copy changes**
-- Prefer: “Run bloop-client in Docker using environment variables only.”
+- Prefer: “Run bloop-tunnel in Docker using environment variables only.”
 - Prefer: “Define one or more tunnels with indexed env vars.”
 - Avoid: “Mount a config file, or optionally pass some env overrides.”
 
@@ -153,7 +153,7 @@ Align frontend setup guidance, install surfaces, and runtime terminology with sp
 
 ### Setup paths summary
 
-> Choose the setup path that matches how you run bloop-client: use terminal setup for the guided default flow, env-only Docker setup for container deployments, or a manual config file if you want direct file control.
+> Choose the setup path that matches how you run bloop-tunnel: use terminal setup for the guided default flow, env-only Docker setup for container deployments, or a manual config file if you want direct file control.
 
 ### Production defaults summary
 
