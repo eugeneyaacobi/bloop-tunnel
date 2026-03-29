@@ -16,7 +16,7 @@ build:
 relay:
 	$(GO) run ./cmd/bloop-relay
 
-client:
+bloop-tunnel:
 	$(GO) run ./cmd/bloop-tunnel
 
 smoke-docker:
