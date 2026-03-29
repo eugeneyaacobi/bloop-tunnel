@@ -3,7 +3,7 @@ WORKDIR /app
 COPY go.mod go.sum* ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /out/bloop-client ./cmd/bloop-client
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /out/bloop-client ./cmd/bloop-tunnel
 
 FROM gcr.io/distroless/base-debian12
 COPY --from=builder /out/bloop-client /bloop-client
