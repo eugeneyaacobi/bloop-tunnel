@@ -71,7 +71,8 @@ type ReconnectConfig struct {
 type TunnelConfig struct {
     Name       string
     Hostname   string // Optional
-    LocalAddr  string
+    LocalIP    string // IP address or hostname
+    LocalPort  int    // Port number (1-65535)
     Access     string // "public", "basic_auth", "token_protected"
     BasicAuth  BasicAuthConfig
     TokenEnv   string // For token_protected access
@@ -92,7 +93,8 @@ type BasicAuthConfig struct {
 - `Reconnect.MaxDelayMs`: Required, must be > InitialDelayMs
 - `Tunnels`: Required, at least one tunnel
 - `Tunnels[i].Name`: Required, non-empty
-- `Tunnels[i].LocalAddr`: Required, non-empty
+- `Tunnels[i].LocalIP`: Required, non-empty, valid IP or hostname
+- `Tunnels[i].LocalPort`: Required, integer 1-65535
 - `Tunnels[i].Access`: Required, one of: "public", "basic_auth", "token_protected"
 - `Tunnels[i].BasicAuth`: Required if Access = "basic_auth"
 - `Tunnels[i].TokenEnv`: Required if Access = "token_protected"
@@ -596,6 +598,22 @@ func ValidateURL(value string) error {
         return fmt.Errorf("URL must include a host")
     }
     return nil
+}
+
+// IP/Hostname validation
+func ValidateIP(value string) error {
+    if strings.TrimSpace(value) == "" {
+        return fmt.Errorf("IP address is required")
+    }
+    // Check if it's a valid IPv4/IPv6 address
+    if net.ParseIP(value) != nil {
+        return nil
+    }
+    // Check if it's a valid hostname
+    if _, err := net.LookupHost(value); err == nil {
+        return nil
+    }
+    return fmt.Errorf("invalid IP address or hostname")
 }
 
 // Port validation

@@ -82,7 +82,7 @@
 ### Tunnel Form Screen
 
 - [ ] T022 [P] [US1] Implement Tunnel Form screen model in `/root/.openclaw/workspace/worktree-bloop-tclient-bubbletea-tui/internal/client/tui/screens/tunnel_form.go`
-- [ ] T023 [US1] Implement Tunnel Form screen validation in `/root/.openclaw/workspace/worktree-bloop-tclient-bubbletea-tui/internal/client/tui/screens/tunnel_form.go` (name/local_addr required, conditional fields based on access type)
+- [ ] T023 [US1] Implement Tunnel Form screen validation in `/root/.openclaw/workspace/worktree-bloop-tclient-bubbletea-tui/internal/client/tui/screens/tunnel_form.go` (name/local_ip/local_port required, conditional fields based on access type)
 - [ ] T024 [P] [US1] Implement Tunnel Form screen view in `/root/.openclaw/workspace/worktree-bloop-tclient-bubbletea-tui/internal/client/tui/screens/tunnel_form.go`
 
 ### Screen Navigation

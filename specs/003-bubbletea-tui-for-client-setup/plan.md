@@ -284,7 +284,8 @@ Flow:
 **Tunnel Form Screen**:
 - Fields:
   - Name (text input, required)
-  - Local Address (text input, required)
+  - Local IP Address (text input, required)
+  - Port Number (number input, required, 1-65535)
   - Hostname (text input, optional)
   - Access Type (select: public, basic_auth, token_protected)
   - Basic Auth Username (text input, conditional on access=basic_auth)

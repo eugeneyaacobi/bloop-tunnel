@@ -73,19 +73,21 @@ As an operator, I want to test my relay auth token against the relay WebSocket e
 2. **Given** relay token verification fails, **When** the user sees the error, **Then** the error message indicates whether the issue is with the token, the relay URL, or network connectivity.
 3. **Given** relay token verification succeeds, **When** the TUI proceeds, **Then** it confirms that the client will be able to connect to the relay on startup.
 
-### User Story 5 - Preview tunnel registration before confirming (Priority: P2)
+### User Story 5 - Add and manage tunnels (Priority: P1)
 
-As an operator, I want to see a summary of exactly what tunnels will be registered before finalizing setup so I can catch misconfigurations before they become runtime errors.
+As an operator, I want a dedicated screen to add new tunnels by specifying service name, local IP address, and port number, and view/modify/delete existing tunnels in a management screen.
 
-**Why this priority**: Provides a safety net and improves confidence that the configuration is correct before committing.
+**Why this priority**: Separating tunnel configuration into dedicated screens makes it clear and easy to manage multiple tunnels, with distinct IP and Port fields for better UX.
 
-**Independent Test**: Can be tested by configuring multiple tunnels and verifying that the preview screen displays all tunnel details accurately before confirmation.
+**Independent Test**: Can be tested by navigating to the endpoints screen, adding a tunnel with name/IP/port, and verifying it appears in the tunnel management list with edit/delete options available.
 
 **Acceptance Scenarios**:
 
-1. **Given** a user has configured one or more tunnels, **When** they reach the review screen, **Then** they see a complete summary of all tunnels including name, local address, hostname (if any), and access mode.
-2. **Given** a user is on the review screen, **When** they notice a misconfiguration, **Then** they can navigate back to edit tunnels without losing their other configuration.
-3. **Given** a user confirms the review, **When** the TUI proceeds to output, **Then** the generated configuration matches exactly what was shown in the review.
+1. **Given** a user is on the endpoints screen, **When** they enter a service name, local IP, and port number, **Then** the tunnel is added to the configuration and appears in the tunnel management list.
+2. **Given** a user is on the tunnel management screen, **When** they view the list of configured tunnels, **Then** they see each tunnel with its name, local IP:port, hostname (if any), and access mode.
+3. **Given** a user selects an existing tunnel from the management screen, **When** they choose to edit, **Then** they can modify the name, IP, port, and other settings, with changes saved to the configuration.
+4. **Given** a user selects an existing tunnel from the management screen, **When** they choose to delete, **Then** the tunnel is removed from the configuration after confirmation.
+5. **Given** a user has added or modified tunnels, **When** they proceed to the review screen, **Then** they see a complete summary of all tunnels including name, local IP:port, hostname (if any), and access mode.
 
 ### User Story 6 - Choose output mode interactively (Priority: P2)
 
