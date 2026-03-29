@@ -1,10 +1,10 @@
-# bloop-client install guide
+# bloop-tunnel install guide
 
-This guide covers installing and running `bloop-client`, the machine-local agent for exposing HTTP services through `bloop.to`.
+This guide covers installing and running `bloop-tunnel`, the machine-local agent for exposing HTTP services through `bloop.to`.
 
-## What `bloop-client` does
+## What `bloop-tunnel` does
 
-`bloop-client`:
+`bloop-tunnel`:
 
 - enrolls with the control plane using an enrollment token
 - receives scoped runtime credentials
@@ -12,7 +12,7 @@ This guide covers installing and running `bloop-client`, the machine-local agent
 - registers configured tunnels
 - reports runtime status to the control plane
 
-`bloop-relay` is server infrastructure and is not part of this package’s normal install flow.
+`bloop-relay` is server infrastructure and is not part of this package's normal install flow.
 
 ## Hosted defaults
 
@@ -31,15 +31,15 @@ GitHub releases include native archives for:
 
 Archive naming:
 
-- `bloop-client-vX.Y.Z-linux-amd64.tar.gz`
-- `bloop-client-vX.Y.Z-linux-arm64.tar.gz`
-- `bloop-client-vX.Y.Z-darwin-amd64.tar.gz`
-- `bloop-client-vX.Y.Z-darwin-arm64.tar.gz`
-- `bloop-client-vX.Y.Z-windows-amd64.zip`
+- `bloop-tunnel-vX.Y.Z-linux-amd64.tar.gz`
+- `bloop-tunnel-vX.Y.Z-linux-arm64.tar.gz`
+- `bloop-tunnel-vX.Y.Z-darwin-amd64.tar.gz`
+- `bloop-tunnel-vX.Y.Z-darwin-arm64.tar.gz`
+- `bloop-tunnel-vX.Y.Z-windows-amd64.zip`
 
 Each archive contains:
 
-- `bloop-client`
+- `bloop-tunnel`
 - this install guide
 - example client configuration
 
@@ -48,7 +48,7 @@ Each archive contains:
 Run the guided setup flow:
 
 ```bash
-./bloop-client setup --config ./client.yaml
+./bloop-tunnel setup --config ./client.yaml
 ```
 
 The setup flow now walks you through:
@@ -64,9 +64,9 @@ If `./client.yaml` already exists, setup preloads those values as prompt default
 For automation or CI, you can still skip prompts entirely:
 
 ```bash
-./bloop-client setup --non-interactive --config ./client.yaml
-./bloop-client setup --non-interactive --output env-file > .env.bloop-client
-./bloop-client setup --non-interactive --output compose-block
+./bloop-tunnel setup --non-interactive --config ./client.yaml
+./bloop-tunnel setup --non-interactive --output env-file > .env.bloop-tunnel
+./bloop-tunnel setup --non-interactive --output compose-block
 ```
 
 ## Option B: Docker with env-only configuration
@@ -74,7 +74,7 @@ For automation or CI, you can still skip prompts entirely:
 Build locally:
 
 ```bash
-docker build -f deploy/docker/client.Dockerfile -t bloop-client:local .
+docker build -f deploy/docker/client.Dockerfile -t bloop-tunnel:local .
 ```
 
 Run with only environment variables:
@@ -85,7 +85,7 @@ docker run --rm \
   -e BLOOP_CLIENT_TOKEN=replace-me \
   -e BLOOP_ENROLLMENT_TOKEN=optional-enrollment-token \
   --add-host=host.docker.internal:host-gateway \
-  bloop-client:local
+  bloop-tunnel:local
 ```
 
 The client scans all zero-based indexed tunnel variables matching `BLOOP_TUNNELS_<n>_*` (for example `BLOOP_TUNNELS_0_*`, `BLOOP_TUNNELS_1_*`), so Docker and Compose deployments can define any number of tunnels.
@@ -115,7 +115,7 @@ If any indexed tunnel env entries are present, the environment-defined tunnel se
 If your apps already run in Docker and you want help turning them into tunnel definitions, request discovery explicitly:
 
 ```bash
-./bloop-client setup --config ./client.yaml --discover-docker
+./bloop-tunnel setup --config ./client.yaml --discover-docker
 ```
 
 Notes:
@@ -129,24 +129,24 @@ Notes:
 
 ### Download a release artifact
 
-Download the archive for your OS and architecture from the project’s GitHub Release, then extract it.
+Download the archive for your OS and architecture from the project's GitHub Release, then extract it.
 
 ### Or build locally
 
 ```bash
-go build -o bloop-client ./cmd/bloop-client
+go build -o bloop-tunnel ./cmd/bloop-tunnel
 ```
 
 ### macOS / Linux
 
 ```bash
-./bloop-client --config ./deploy/examples/client.example.yaml
+./bloop-tunnel --config ./deploy/examples/client.example.yaml
 ```
 
 ### Windows (PowerShell)
 
 ```powershell
-.\bloop-client.exe --config .\deploy\examples\client.example.yaml
+.\bloop-tunnel.exe --config .\deploy\examples\client.example.yaml
 ```
 
 ## Example YAML config
@@ -187,8 +187,8 @@ Then verify in the control plane:
 
 For scripted installs or agent-driven setup:
 
-1. generate starter YAML or env scaffolding with `bloop-client setup --non-interactive`
+1. generate starter YAML or env scaffolding with `bloop-tunnel setup --non-interactive`
 2. provide `BLOOP_CLIENT_TOKEN` and optionally `BLOOP_ENROLLMENT_TOKEN`
 3. define one or more tunnels via YAML or zero-based indexed `BLOOP_TUNNELS_<n>_*` variables
-4. run `bloop-client` with `--config <file>` or env-only Docker startup
+4. run `bloop-tunnel` with `--config <file>` or env-only Docker startup
 5. confirm the installation becomes active and routes appear in the control plane

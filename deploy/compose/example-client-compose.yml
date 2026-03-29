@@ -11,7 +11,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     # Optional: only mount the Docker socket if you plan to run
-    # `bloop-client setup --discover-docker` inside the container.
+    # `bloop-tunnel setup --discover-docker` inside the container.
     # volumes:
     #   - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped

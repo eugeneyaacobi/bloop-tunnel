@@ -92,7 +92,7 @@ func initialConfig(opts Options) (config.ClientConfig, error) {
 
 func runInteractive(ctx context.Context, _ io.Writer, stderr io.Writer, in io.Reader, promptOut io.Writer, cfg *config.ClientConfig, opts Options) error {
 	reader := bufio.NewReader(in)
-	fmt.Fprintln(promptOut, "Interactive bloop-client setup")
+	fmt.Fprintln(promptOut, "Interactive bloop-tunnel setup")
 	fmt.Fprintln(promptOut, "Press enter to accept defaults. Docker discovery is always opt-in.")
 
 	cfg.ControlPlaneURL = prompt(reader, promptOut, "Control plane URL", cfg.ControlPlaneURL)
