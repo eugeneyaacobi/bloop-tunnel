@@ -5,7 +5,7 @@
 
 ## Summary
 
-Upgrade the existing bufio-based `bloop-client setup` command to use BubbleTea framework for a modern, responsive terminal UI. The TUI will provide screen-based navigation, real-time form validation, API verification flows (connectivity, enrollment, relay), and secure token handling. All existing functionality (config loading, output modes, non-interactive mode) will be preserved while providing a significantly improved operator experience.
+Upgrade the existing bufio-based `bloop-tunnel setup` command to use BubbleTea framework for a modern, responsive terminal UI. The TUI will provide screen-based navigation, real-time form validation, API verification flows (connectivity, enrollment, relay), and secure token handling. All existing functionality (config loading, output modes, non-interactive mode) will be preserved while providing a significantly improved operator experience.
 
 ## Technical Context
 

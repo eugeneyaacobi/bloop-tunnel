@@ -1,4 +1,4 @@
-# Data Model: BubbleTea TUI for bloop-client Setup
+# Data Model: BubbleTea TUI for bloop-tunnel Setup
 
 **Feature**: [003-bubbletea-tui-for-client-setup]  
 **Date**: 2026-03-29  

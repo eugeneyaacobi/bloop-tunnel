@@ -1,4 +1,4 @@
-# Feature Specification: BubbleTea TUI for bloop-client Setup
+# Feature Specification: BubbleTea TUI for bloop-tunnel Setup
 
 **Feature Branch**: `[feat/bloop-client-bubbletea-tui]`  
 **Created**: 2026-03-29  
@@ -7,7 +7,7 @@
 
 ## Background
 
-The current `bloop-client setup` command uses basic bufio prompts that provide minimal UX. This spec upgrades the interactive setup to use BubbleTea (Charmbracelet's Elm-architecture TUI framework) for a modern, responsive terminal interface with:
+The current `bloop-tunnel setup` command uses basic bufio prompts that provide minimal UX. This spec upgrades the interactive setup to use BubbleTea (Charmbracelet's Elm-architecture TUI framework) for a modern, responsive terminal interface with:
 
 - Screen-based navigation
 - Form validation with immediate feedback
@@ -19,15 +19,15 @@ The current `bloop-client setup` command uses basic bufio prompts that provide m
 
 ### User Story 1 - Navigate setup through screen-based TUI (Priority: P1)
 
-As an operator, I want to walk through a polished terminal UI with clear screens and intuitive keyboard navigation so I can configure bloop-client efficiently without memorizing prompt sequences.
+As an operator, I want to walk through a polished terminal UI with clear screens and intuitive keyboard navigation so I can configure bloop-tunnel efficiently without memorizing prompt sequences.
 
 **Why this priority**: Replaces the current linear prompt flow with a modern, discoverable interface that reduces operator error and improves first-time setup experience.
 
-**Independent Test**: Can be fully tested by running `bloop-client setup`, navigating through all screens using keyboard, and verifying that all configuration options are accessible and properly validated.
+**Independent Test**: Can be fully tested by running `bloop-tunnel setup`, navigating through all screens using keyboard, and verifying that all configuration options are accessible and properly validated.
 
 **Acceptance Scenarios**:
 
-1. **Given** a user runs `bloop-client setup` in a terminal, **When** they navigate through screens using arrow keys, tab, and enter, **Then** each screen renders correctly and transitions appropriately.
+1. **Given** a user runs `bloop-tunnel setup` in a terminal, **When** they navigate through screens using arrow keys, tab, and enter, **Then** each screen renders correctly and transitions appropriately.
 2. **Given** a user is on any screen, **When** they press `q` or `ctrl+c`, **Then** the TUI exits cleanly with a confirmation prompt if there are unsaved changes.
 3. **Given** a user has made edits, **When** they press `esc` on a non-modal screen, **Then** they return to the previous screen or main menu without losing progress.
 

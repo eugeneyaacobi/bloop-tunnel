@@ -26,7 +26,7 @@ func main() {
 	flag.Parse()
 
 	if *showVersion {
-		fmt.Printf("bloop-client %s (%s) %s\n", version.Version, version.Commit, version.Date)
+		fmt.Printf("bloop-tunnel %s (%s) %s\n", version.Version, version.Commit, version.Date)
 		return
 	}
 

@@ -2,7 +2,7 @@
 
 **API Version**: v1  
 **Base URL**: `{control_plane_url}`  
-**Purpose**: Enrollment and runtime registration for bloop-client
+**Purpose**: Enrollment and runtime registration for bloop-tunnel
 
 ---
 

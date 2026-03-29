@@ -312,4 +312,4 @@ Test against real relay endpoint:
 - Auth token verification is optional but recommended
 - Relay tokens are long-lived and should be rotated periodically
 - The TUI verifies connectivity but does not complete full registration during setup
-- Full tunnel registration happens on client startup (`bloop-client run`)
+- Full tunnel registration happens on client startup (`bloop-tunnel run`)
