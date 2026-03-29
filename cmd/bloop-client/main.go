@@ -9,13 +9,19 @@ import (
 
 	"bloop-tunnel/internal/auth"
 	"bloop-tunnel/internal/client"
+	clientsetup "bloop-tunnel/internal/client/setup"
 	"bloop-tunnel/internal/config"
 	"bloop-tunnel/internal/logging"
 	"bloop-tunnel/pkg/version"
 )
 
 func main() {
-	configPath := flag.String("config", "deploy/examples/client.example.yaml", "Path to client config")
+	args := os.Args[1:]
+	if len(args) > 0 && args[0] == "setup" {
+		os.Exit(runSetup(args[1:]))
+	}
+
+	configPath := flag.String("config", "", "Path to client config (optional when using environment variables)")
 	showVersion := flag.Bool("version", false, "Show version")
 	flag.Parse()
 
@@ -82,6 +88,41 @@ func main() {
 		fmt.Fprintf(os.Stderr, "client session ended: %v\n", err)
 		os.Exit(1)
 	}
+}
+
+func runSetup(args []string) int {
+	fs := flag.NewFlagSet("setup", flag.ContinueOnError)
+	fs.SetOutput(os.Stderr)
+
+	configPath := fs.String("config", "deploy/examples/client.example.yaml", "Write YAML scaffold to this path, or '-' for stdout")
+	output := fs.String("output", string(clientsetup.OutputYAML), "Output mode: yaml|env-file|compose-block")
+	nonInteractive := fs.Bool("non-interactive", false, "Generate scaffold output without prompts")
+	controlPlaneURL := fs.String("control-plane-url", config.DefaultControlPlaneURL, "Control plane URL to embed in generated output")
+	relayURL := fs.String("relay-url", config.DefaultRelayURL, "Relay URL to embed in generated output")
+	authTokenEnv := fs.String("auth-token-env", "BLOOP_CLIENT_TOKEN", "Environment variable name holding the relay auth token")
+	enrollmentTokenEnv := fs.String("enrollment-token-env", "", "Environment variable name holding the enrollment token")
+	discoverDocker := fs.Bool("discover-docker", false, "Offer opt-in Docker service discovery during interactive setup")
+
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+
+	err := clientsetup.Run(os.Stdout, os.Stderr, clientsetup.Options{
+		ConfigPath:         *configPath,
+		OutputMode:         clientsetup.OutputMode(*output),
+		NonInteractive:     *nonInteractive,
+		ControlPlaneURL:    *controlPlaneURL,
+		RelayURL:           *relayURL,
+		AuthTokenEnv:       *authTokenEnv,
+		EnrollmentTokenEnv: *enrollmentTokenEnv,
+		DiscoverDocker:     *discoverDocker,
+		Stdin:              os.Stdin,
+	})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "setup: %v\n", err)
+		return 1
+	}
+	return 0
 }
 
 func validateProtectedTunnels(cfg *config.ClientConfig) error {

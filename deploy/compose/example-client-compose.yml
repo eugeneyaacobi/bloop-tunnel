@@ -3,9 +3,15 @@ services:
     build:
       context: ../..
       dockerfile: deploy/docker/client.Dockerfile
-    command: ["--config", "/config/client.yaml"]
-    volumes:
-      - ../examples/client.example.yaml:/config/client.yaml:ro
+    env_file:
+      - ../examples/client.env.example
+    environment:
+      BLOOP_CLIENT_TOKEN: ${BLOOP_CLIENT_TOKEN:-replace-me}
+      BLOOP_ENROLLMENT_TOKEN: ${BLOOP_ENROLLMENT_TOKEN:-}
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    # Optional: only mount the Docker socket if you plan to run
+    # `bloop-client setup --discover-docker` inside the container.
+    # volumes:
+    #   - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped

@@ -12,6 +12,20 @@ This repository’s release surface is **`bloop-client` only**: the agent that r
 - registers configured HTTP tunnels
 - reports runtime status back to the control plane
 
+## Setup paths
+
+Use the path that fits the operator surface:
+
+- **Interactive CLI**: `bloop-client setup --config ./client.yaml` walks through defaults, tunnel editing, and optional Docker discovery.
+- **Config file**: pass `--config <path>` to run from YAML.
+- **Env-only Docker**: omit `--config` and define zero-based indexed `BLOOP_TUNNELS_<n>_*` entries directly (for example `BLOOP_TUNNELS_0_*`, `BLOOP_TUNNELS_1_*`).
+- **Automation scaffold**: `bloop-client setup --non-interactive` still generates starter YAML, `.env`, or Compose-friendly output.
+
+Hosted defaults point to:
+
+- control plane: `https://api.bloop.to`
+- relay: `wss://relay.bloop.to/connect`
+
 ## Install and run
 
 See [`docs/CLIENT_INSTALL.md`](docs/CLIENT_INSTALL.md) for:
