@@ -75,7 +75,7 @@ jobs:
 
           LDFLAGS="-s -w -X bloop-tunnel/pkg/version.Version=${VERSION} -X bloop-tunnel/pkg/version.Commit=${COMMIT} -X bloop-tunnel/pkg/version.Date=${BUILD_DATE}"
 
-          go build -trimpath -ldflags="$LDFLAGS" -o "$STAGE/bloop-client${EXT}" ./cmd/bloop-client
+          go build -trimpath -ldflags="$LDFLAGS" -o "$STAGE/bloop-client${EXT}" ./cmd/bloop-tunnel
 
           cp README.md "$STAGE/README.md"
           cp docs/CLIENT_INSTALL.md "$STAGE/CLIENT_INSTALL.md"
