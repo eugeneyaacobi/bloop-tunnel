@@ -1,4 +1,4 @@
-# Research Notes: bloop-client interactive setup, production defaults, and Docker endpoint discovery
+# Research Notes: bloop-tunnel interactive setup, production defaults, and Docker endpoint discovery
 
 ## Chosen Direction
 

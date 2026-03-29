@@ -32,8 +32,8 @@ Frontend **does** explain the setup modes, production defaults, and the fact tha
 
 ## Content requirements
 
-- [ ] Show `bloop-client setup` as the primary guided path
-- [ ] Show `bloop-client setup --output env-file` for Docker operators
+- [ ] Show `bloop-tunnel setup` as the primary guided path
+- [ ] Show `bloop-tunnel setup --output env-file` for Docker operators
 - [ ] Explain env-only tunnel encoding with `BLOOP_TUNNELS_<n>_*`
 - [ ] Call out precedence in plain language: flags > env > config file > defaults
 - [ ] Mention that tunnel definitions discovered from Docker become explicit saved config, not hidden runtime state

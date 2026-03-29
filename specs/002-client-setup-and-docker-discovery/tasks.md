@@ -1,4 +1,4 @@
-# Tasks: bloop-client interactive setup, production defaults, and Docker endpoint discovery
+# Tasks: bloop-tunnel interactive setup, production defaults, and Docker endpoint discovery
 
 **Input**: Design documents from `/specs/002-client-setup-and-docker-discovery/`
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md
@@ -36,17 +36,17 @@
 
 **Goal**: Let operators create or edit tunnel configuration through a guided CLI instead of hand-editing YAML.
 
-**Independent Test**: Run the setup command against empty and existing config files, generate valid output, and start `bloop-client` successfully with the result.
+**Independent Test**: Run the setup command against empty and existing config files, generate valid output, and start `bloop-tunnel` successfully with the result.
 
 ### Tests for User Story 1
 
-- [ ] T007 [P] [US1] Add setup command behavior tests for new config generation in `/root/.openclaw/workspace/bloop-tunnel/cmd/bloop-client/setup_test.go`
+- [ ] T007 [P] [US1] Add setup command behavior tests for new config generation in `/root/.openclaw/workspace/bloop-tunnel/cmd/bloop-tunnel/setup_test.go`
 - [ ] T008 [P] [US1] Add setup tests for editing existing config defaults in `/root/.openclaw/workspace/bloop-tunnel/internal/client/setup/setup_test.go`
 - [ ] T009 [P] [US1] Add non-interactive validation tests in `/root/.openclaw/workspace/bloop-tunnel/internal/client/setup/validation_test.go`
 
 ### Implementation for User Story 1
 
-- [ ] T010 [P] [US1] Add setup command/subcommand wiring in `/root/.openclaw/workspace/bloop-tunnel/cmd/bloop-client/main.go`
+- [ ] T010 [P] [US1] Add setup command/subcommand wiring in `/root/.openclaw/workspace/bloop-tunnel/cmd/bloop-tunnel/main.go`
 - [ ] T011 [P] [US1] Implement setup session model and prompt flow in `/root/.openclaw/workspace/bloop-tunnel/internal/client/setup/session.go`
 - [ ] T012 [US1] Implement tunnel add/edit/remove prompt flow in `/root/.openclaw/workspace/bloop-tunnel/internal/client/setup/tunnels.go`
 - [ ] T013 [US1] Implement config output writers for YAML, env-file, and Compose-friendly output in `/root/.openclaw/workspace/bloop-tunnel/internal/client/setup/output.go`
@@ -61,7 +61,7 @@
 
 **Goal**: Support unlimited environment-defined tunnel entries for Docker and Compose deployments.
 
-**Independent Test**: Start `bloop-client` with only environment variables defining multiple tunnels and verify successful config resolution and registration.
+**Independent Test**: Start `bloop-tunnel` with only environment variables defining multiple tunnels and verify successful config resolution and registration.
 
 ### Tests for User Story 2
 
@@ -73,10 +73,10 @@
 
 - [ ] T019 [P] [US2] Implement environment tunnel scanning and indexed decoding in `/root/.openclaw/workspace/bloop-tunnel/internal/config/client_env.go`
 - [ ] T020 [US2] Implement merge/override logic for env + file config in `/root/.openclaw/workspace/bloop-tunnel/internal/config/client.go`
-- [ ] T021 [US2] Update runtime startup to allow env-only config execution in `/root/.openclaw/workspace/bloop-tunnel/cmd/bloop-client/main.go`
+- [ ] T021 [US2] Update runtime startup to allow env-only config execution in `/root/.openclaw/workspace/bloop-tunnel/cmd/bloop-tunnel/main.go`
 - [ ] T022 [US2] Add Docker Compose and `.env` examples for multi-tunnel env config in `/root/.openclaw/workspace/bloop-tunnel/deploy/compose/example-client-compose.yml`, `/root/.openclaw/workspace/bloop-tunnel/deploy/examples/client.env.example`, and `/root/.openclaw/workspace/bloop-tunnel/docs/CLIENT_INSTALL.md`
 
-**Checkpoint**: Docker operators can launch bloop-client with an arbitrary number of tunnels using only environment variables.
+**Checkpoint**: Docker operators can launch bloop-tunnel with an arbitrary number of tunnels using only environment variables.
 
 ---
 

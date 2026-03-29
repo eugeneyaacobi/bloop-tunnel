@@ -1,4 +1,4 @@
-# Feature Specification: bloop-client interactive setup, production defaults, and Docker endpoint discovery
+# Feature Specification: bloop-tunnel interactive setup, production defaults, and Docker endpoint discovery
 
 **Feature Branch**: `[002-client-setup-and-docker-discovery]`  
 **Created**: 2026-03-28  
@@ -9,7 +9,7 @@
 
 ### User Story 1 - Configure tunnels interactively from the terminal (Priority: P1)
 
-As an operator, I want `bloop-client` to walk me through creating or updating tunnel configuration in the terminal so I can set up tunnels without hand-editing YAML like it’s a punishment.
+As an operator, I want `bloop-tunnel` to walk me through creating or updating tunnel configuration in the terminal so I can set up tunnels without hand-editing YAML like it’s a punishment.
 
 **Why this priority**: This directly addresses the main usability problem and becomes the new operator on-ramp for native and Docker usage.
 
@@ -25,7 +25,7 @@ As an operator, I want `bloop-client` to walk me through creating or updating tu
 
 ### User Story 2 - Run the Docker client entirely from environment variables (Priority: P1)
 
-As an operator, I want to define any number of tunnels through Docker environment variables so I can run `bloop-client` in Compose or container platforms without mounting handwritten config files.
+As an operator, I want to define any number of tunnels through Docker environment variables so I can run `bloop-tunnel` in Compose or container platforms without mounting handwritten config files.
 
 **Why this priority**: Docker is a primary install surface and currently forces file-based configuration even for simple setups.
 
