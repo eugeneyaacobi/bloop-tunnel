@@ -108,7 +108,7 @@ As an operator, I want to select between YAML file, env-file, or Compose block o
 ### Functional Requirements
 
 - **FR-001**: The TUI MUST use BubbleTea framework (not Huh?, not Gum) following Elm-style model-view-update architecture.
-- **FR-002**: The TUI MUST support screen-based navigation with the following screens: Welcome → Config entry → Tunnel list/edit → Docker discovery (opt-in) → Review → Output mode selection.
+- **FR-002**: The TUI MUST support screen-based navigation with the following screens: Welcome → Config entry → Endpoints (add tunnel) → Tunnels (list/manage) → Docker discovery (opt-in) → Verification → Review → Output mode selection.
 - **FR-003**: The TUI MUST provide consistent keyboard navigation: arrows for selection, tab for next field/section, enter for confirm/action, esc for back/cancel, q/ctrl+c for quit.
 - **FR-004**: The TUI MUST use Lipgloss for styling with a consistent color scheme that works in both light and dark terminals.
 - **FR-005**: The TUI MUST display loading states for async operations (API verification, Docker discovery).

@@ -118,10 +118,18 @@ tests/
        │                         │
        ▼                         │
 ┌─────────────┐                  │
-│   Tunnels   │                  │
-└──────┬──────┘                  │
-       │                         │
-       ▼                         │
+│  Tunnels    │                  │
+│  (List)     │────┬─────────────┤
+└──────┬──────┘    │             │
+       │             ▼             │
+       │     ┌─────────────┐   │
+       │     │ Endpoints   │   │
+       │     │ (Add/Edit)  │───┘
+       │     └──────┬──────┘
+       │            │
+       │            └──────────────┐
+       │                           │
+       ▼                           │
 ┌─────────────┐                  │
 │   Verify    │◄─────────────────┤
 │    APIs     │                  │
@@ -271,32 +279,35 @@ Flow:
   - "Back" → Welcome screen
   - "Test Connectivity" → Run connectivity test, show inline result
 
-**Tunnels List Screen**:
-- List view showing all configured tunnels
-- Columns: Name, Local Addr, Access, Hostname (if any)
-- Actions:
-  - "Add Tunnel" → Tunnel Form screen (new tunnel)
-  - "Edit" → Tunnel Form screen (existing tunnel)
-  - "Remove" → Remove tunnel with confirmation
-  - "Next" → Verification screen
-  - "Back" → Config screen
-
-**Tunnel Form Screen**:
+**Endpoints Screen** (Add Tunnel):
+- Form for adding a new tunnel to expose
 - Fields:
-  - Name (text input, required)
-  - Local IP Address (text input, required)
-  - Port Number (number input, required, 1-65535)
-  - Hostname (text input, optional)
+  - Service Name (text input, required) - User-defined name for the tunnel
+  - Local IP Address (text input, required) - IP address or hostname of local service
+  - Port Number (number input, required, 1-65535) - Port number of local service
+  - Hostname (text input, optional) - Custom hostname for tunnel (default: `{name}.bloop.to`)
   - Access Type (select: public, basic_auth, token_protected)
   - Basic Auth Username (text input, conditional on access=basic_auth)
   - Basic Auth Password Env (text input, conditional on access=basic_auth)
   - Token Env (text input, conditional on access=token_protected)
 - Validation:
-  - Name and Local Addr required
+  - Service Name required
+  - Local IP Address must be valid IP or hostname
+  - Port Number must be 1-65535
   - Conditional fields required based on access type
 - Actions:
-  - "Save" → Return to Tunnels List
+  - "Save Tunnel" → Add to Tunnels List and return to list
   - "Cancel" → Return to Tunnels List without saving
+
+**Tunnels List Screen** (Management):
+- List view showing all configured tunnels
+- Columns: Name, Local IP:Port, Access, Hostname (if any)
+- Actions:
+  - "Add New Tunnel" → Go to Endpoints screen
+  - "Edit Tunnel" → Go to Endpoints screen with tunnel data pre-loaded
+  - "Delete Tunnel" → Remove tunnel with confirmation prompt
+  - "Next" → Verification screen
+  - "Back" → Config screen
 
 **Docker Discovery Screen** (optional):
 - List view of discovered containers with candidate ports
