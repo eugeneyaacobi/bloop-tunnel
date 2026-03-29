@@ -17,7 +17,7 @@ relay:
 	$(GO) run ./cmd/bloop-relay
 
 client:
-	$(GO) run ./cmd/bloop-client
+	$(GO) run ./cmd/bloop-tunnel
 
 smoke-docker:
 	@set -euo pipefail; \

@@ -134,7 +134,7 @@ Download the archive for your OS and architecture from the project’s GitHub Re
 ### Or build locally
 
 ```bash
-go build -o bloop-client ./cmd/bloop-client
+go build -o bloop-client ./cmd/bloop-tunnel
 ```
 
 ### macOS / Linux
