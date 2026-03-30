@@ -18,6 +18,8 @@ import (
 
 func main() {
 	args := os.Args[1:]
+
+	// "setup" subcommand: flag-driven config generation (no TUI, no prompts)
 	if len(args) > 0 && args[0] == "setup" {
 		os.Exit(runSetup(args[1:]))
 	}
@@ -31,7 +33,7 @@ func main() {
 		return
 	}
 
-	// Default: if no flags and no config file, launch the TUI setup wizard
+	// No config file and no flags → launch TUI setup wizard
 	if flag.NFlag() == 0 && *configPath == "" {
 		launchTUI()
 		return
@@ -110,28 +112,20 @@ func runSetup(args []string) int {
 
 	configPath := fs.String("config", "deploy/examples/client.example.yaml", "Write YAML scaffold to this path, or '-' for stdout")
 	output := fs.String("output", string(clientsetup.OutputYAML), "Output mode: yaml|env-file|compose-block")
-	nonInteractive := fs.Bool("non-interactive", false, "Generate scaffold output without the TUI")
 	controlPlaneURL := fs.String("control-plane-url", config.DefaultControlPlaneURL, "Control plane URL to embed in generated output")
 	relayURL := fs.String("relay-url", config.DefaultRelayURL, "Relay URL to embed in generated output")
 	authTokenEnv := fs.String("auth-token-env", "BLOOP_CLIENT_TOKEN", "Environment variable name holding the relay auth token")
 	enrollmentTokenEnv := fs.String("enrollment-token-env", "", "Environment variable name holding the enrollment token")
-	discoverDocker := fs.Bool("discover-docker", false, "Offer opt-in Docker service discovery during interactive setup")
+	discoverDocker := fs.Bool("discover-docker", false, "Include Docker Compose service discovery in generated output")
 
 	if err := fs.Parse(args); err != nil {
 		return 2
 	}
 
-	// Default: launch the TUI setup wizard
-	if !*nonInteractive {
-		launchTUI()
-		return 0
-	}
-
-	// Legacy non-interactive scaffold generator
 	err := clientsetup.Run(os.Stdout, os.Stderr, clientsetup.Options{
 		ConfigPath:         *configPath,
 		OutputMode:         clientsetup.OutputMode(*output),
-		NonInteractive:     *nonInteractive,
+		NonInteractive:     true,
 		ControlPlaneURL:    *controlPlaneURL,
 		RelayURL:           *relayURL,
 		AuthTokenEnv:       *authTokenEnv,
