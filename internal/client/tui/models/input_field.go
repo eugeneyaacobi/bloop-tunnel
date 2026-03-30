@@ -168,6 +168,10 @@ func (m InputFieldModel) View() string {
 	return boxSty.Render(b.String())
 }
 
+func (m InputFieldModel) GetValue() string {
+	return m.value
+}
+
 func (m InputFieldModel) WithValue(value string) InputFieldModel {
 	m.value = value
 	m.cursorPos = utf8.RuneCountInString(value)

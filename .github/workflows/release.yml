@@ -7,13 +7,50 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. v0.2.0). Leave blank for auto bump.'
+        required: false
+        type: string
 
-permissions:
-  contents: write
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  build-client-release-assets:
+  auto-tag:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Bump patch tag and push
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${{ inputs.version }}" ]; then
+            TAG="${{ inputs.version }}"
+          else
+            LATEST=$(git tag --sort=-v:refname | head -1 || echo "v0.0.0")
+            # Strip leading 'v', bump patch
+            BASE="${LATEST#v}"
+            MAJOR=$(echo "$BASE" | cut -d. -f1)
+            MINOR=$(echo "$BASE" | cut -d. -f2)
+            PATCH=$(echo "$BASE" | cut -d. -f3)
+            PATCH=$((PATCH + 1))
+            TAG="v${MAJOR}.${MINOR}.${PATCH}"
+          fi
+          git tag "$TAG"
+          git push origin "$TAG"
+          echo "Pushed tag $TAG — release workflow will pick it up."
+
+  build-client-release-assets:
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
     strategy:
       fail-fast: false
       matrix:
@@ -66,7 +103,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          PKG="bloop-client-${VERSION}-${GOOS}-${GOARCH}"
+          PKG="bloop-tunnel-${VERSION}-${GOOS}-${GOARCH}"
           STAGE="dist/${PKG}"
           mkdir -p "$STAGE"
 
@@ -75,7 +112,7 @@ jobs:
 
           LDFLAGS="-s -w -X bloop-tunnel/pkg/version.Version=${VERSION} -X bloop-tunnel/pkg/version.Commit=${COMMIT} -X bloop-tunnel/pkg/version.Date=${BUILD_DATE}"
 
-          go build -trimpath -ldflags="$LDFLAGS" -o "$STAGE/bloop-client${EXT}" ./cmd/bloop-client
+          go build -trimpath -ldflags="$LDFLAGS" -o "$STAGE/bloop-tunnel${EXT}" ./cmd/bloop-tunnel
 
           cp README.md "$STAGE/README.md"
           cp docs/CLIENT_INSTALL.md "$STAGE/CLIENT_INSTALL.md"
