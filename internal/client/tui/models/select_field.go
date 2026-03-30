@@ -131,6 +131,10 @@ func (m SelectFieldModel) WithOptions(options []string) SelectFieldModel {
 	return m
 }
 
+func (m SelectFieldModel) SelectedIndex() int {
+	return m.selected
+}
+
 func (m SelectFieldModel) Selected() string {
 	if m.selected >= 0 && m.selected < len(m.options) {
 		return m.options[m.selected]
