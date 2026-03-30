@@ -9,50 +9,75 @@ import (
 )
 
 type EndpointsScreenModel struct {
-	form           *huh.Form
-	isEdit         bool
-	editIndex      int
-	width, height  int
-	accessMode     *string
+	form          *huh.Form
+	isEdit        bool
+	editIndex     int
+	width, height int
+
+	// Value pointers — huh writes into these
+	name        string
+	localIP     string
+	localPort   string
+	hostname    string
+	accessMode  string
+	username    string
+	passwordEnv string
+	tokenEnv    string
 }
 
 func NewEndpointsScreenModel(tunnel TunnelConfig) EndpointsScreenModel {
-	isEdit := tunnel.Name != ""
-	defaultAccessMode := "public"
-	if tunnel.Access != "" {
-		defaultAccessMode = tunnel.Access
+	m := EndpointsScreenModel{
+		isEdit:     tunnel.Name != "",
+		name:       tunnel.Name,
+		localIP:    tunnel.LocalIP,
+		localPort:  strconv.Itoa(tunnel.LocalPort),
+		hostname:   tunnel.Hostname,
+		accessMode: tunnel.Access,
+		username:   tunnel.BasicAuth.Username,
+		passwordEnv: tunnel.BasicAuth.PasswordEnv,
+		tokenEnv:   tunnel.TokenEnv,
+		width:      80,
+		height:     24,
+		editIndex:  -1,
 	}
 
-	localPort := ""
+	if m.localIP == "" {
+		m.localIP = "localhost"
+	}
+	if m.accessMode == "" {
+		m.accessMode = "public"
+	}
 	if tunnel.LocalPort > 0 {
-		localPort = strconv.Itoa(tunnel.LocalPort)
+		m.localPort = strconv.Itoa(tunnel.LocalPort)
+	} else {
+		m.localPort = ""
 	}
 
-	name := tunnel.Name
-	localIP := tunnel.LocalIP
-	if localIP == "" {
-		localIP = "localhost"
-	}
-	hostname := tunnel.Hostname
-	username := tunnel.BasicAuth.Username
-	passwordEnv := tunnel.BasicAuth.PasswordEnv
-	tokenEnv := tunnel.TokenEnv
+	m.buildForm()
+	return m
+}
 
-	// Build options for access mode
+func NewEndpointsScreenModelForEdit(index int, tunnel TunnelConfig) EndpointsScreenModel {
+	m := NewEndpointsScreenModel(tunnel)
+	m.isEdit = true
+	m.editIndex = index
+	return m
+}
+
+func (m *EndpointsScreenModel) buildForm() {
 	accessOptions := []huh.Option[string]{
 		huh.NewOption("Public (no authentication)", "public"),
 		huh.NewOption("Basic Auth", "basic_auth"),
 		huh.NewOption("Token Protected", "token_protected"),
 	}
 
-	// Create the form
-	form := huh.NewForm(
+	m.form = huh.NewForm(
 		huh.NewGroup(
 			huh.NewInput().
 				Title("Tunnel Name").
 				Description("A unique name for this tunnel").
 				Prompt("> ").
-				Value(&name).
+				Value(&m.name).
 				Validate(func(s string) error {
 					if len(strings.TrimSpace(s)) == 0 {
 						return &ValidationError{Field: "name", Message: "is required"}
@@ -64,14 +89,14 @@ func NewEndpointsScreenModel(tunnel TunnelConfig) EndpointsScreenModel {
 				Title("Local IP / Hostname").
 				Description("The local IP or hostname to forward to").
 				Prompt("> ").
-				Value(&localIP).
+				Value(&m.localIP).
 				Placeholder("localhost"),
 
 			huh.NewInput().
 				Title("Local Port").
 				Description("The local port number (1-65535)").
 				Prompt("> ").
-				Value(&localPort).
+				Value(&m.localPort).
 				Validate(func(s string) error {
 					if len(strings.TrimSpace(s)) == 0 {
 						return &ValidationError{Field: "port", Message: "is required"}
@@ -90,54 +115,38 @@ func NewEndpointsScreenModel(tunnel TunnelConfig) EndpointsScreenModel {
 				Title("Hostname Override").
 				Description("Optional custom hostname (leave empty for default)").
 				Prompt("> ").
-				Value(&hostname),
+				Value(&m.hostname),
 
 			huh.NewSelect[string]().
 				Title("Access Mode").
 				Description("Choose how the tunnel is secured").
 				Options(accessOptions...).
-				Value(&defaultAccessMode),
+				Value(&m.accessMode),
 
 			huh.NewInput().
 				Title("Username").
 				Description("Required for Basic Auth").
 				Prompt("> ").
-				Value(&username),
+				Value(&m.username),
 
 			huh.NewInput().
 				Title("Password Env Var").
 				Description("Environment variable containing the password").
 				Prompt("> ").
-				Value(&passwordEnv).
+				Value(&m.passwordEnv).
 				Placeholder("BLOOP_TUNNEL_PASSWORD"),
 
 			huh.NewInput().
 				Title("Token Env Var").
 				Description("Environment variable containing the access token").
 				Prompt("> ").
-				Value(&tokenEnv).
+				Value(&m.tokenEnv).
 				Placeholder("BLOOP_TUNNEL_TOKEN"),
 		),
 	).
 		WithTheme(huhTheme()).
 		WithShowHelp(true).
 		WithShowErrors(true)
-
-	return EndpointsScreenModel{
-		form:       form,
-		isEdit:     isEdit,
-		editIndex:  -1,
-		width:      80,
-		height:     24,
-		accessMode: &defaultAccessMode,
-	}
-}
-
-func NewEndpointsScreenModelForEdit(index int, tunnel TunnelConfig) EndpointsScreenModel {
-	model := NewEndpointsScreenModel(tunnel)
-	model.isEdit = true
-	model.editIndex = index
-	return model
 }
 
 func (m EndpointsScreenModel) Init() tea.Cmd {
@@ -149,7 +158,6 @@ func (m EndpointsScreenModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "esc":
-			// Cancel and go back to tunnels list
 			return m, func() tea.Msg { return ScreenTransitionMsg{From: StateEndpoints, To: StateTunnels} }
 		}
 	case tea.WindowSizeMsg:
@@ -160,7 +168,6 @@ func (m EndpointsScreenModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	newModel, cmd := m.form.Update(msg)
 	m.form = newModel.(*huh.Form)
 
-	// Check if form is complete
 	if m.form.State == huh.StateCompleted {
 		tunnel := m.extractTunnelConfig()
 		return m, func() tea.Msg { return TunnelSaveMsg{Tunnel: tunnel} }
@@ -170,24 +177,21 @@ func (m EndpointsScreenModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m EndpointsScreenModel) extractTunnelConfig() TunnelConfig {
-	// Get values from the form
-	// Since we're using pointers to variables, the values should be updated
-	// We need to access them through the form's internal state or use reflection
-	// For simplicity, we'll create a basic tunnel config
-
-	// In a real implementation, you would extract the actual form values
-	// This is a simplified version
+	port, _ := strconv.Atoi(m.localPort)
 	tunnel := TunnelConfig{
-		Name:      "example-tunnel",
-		LocalIP:   "localhost",
-		LocalPort: 8080,
-		Access:    "public",
+		Name:      m.name,
+		LocalIP:   m.localIP,
+		LocalPort: port,
+		Hostname:  m.hostname,
+		Access:    m.accessMode,
+		TokenEnv:  m.tokenEnv,
 	}
-
-	if m.accessMode != nil {
-		tunnel.Access = *m.accessMode
+	if m.accessMode == "basic_auth" {
+		tunnel.BasicAuth = BasicAuthConfig{
+			Username:    m.username,
+			PasswordEnv: m.passwordEnv,
+		}
 	}
-
 	return tunnel
 }
 
@@ -198,7 +202,6 @@ func (m EndpointsScreenModel) View() string {
 	return m.form.View()
 }
 
-// huhTheme creates a custom theme for the form
 func huhTheme() *huh.Theme {
 	return huh.ThemeCharm()
 }

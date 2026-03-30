@@ -33,8 +33,8 @@ func NewConfigScreenModel(config Config) ConfigScreenModel {
 			Value:       config.RelayURL,
 		}),
 		models.NewInputField(models.InputFieldOpts{
-			Label:       "Auth Token Env Var",
-			Placeholder: "BLOOP_CLIENT_TOKEN",
+			Label:       "Tunnel Token",
+			Placeholder: "Paste your tunnel token from bloop.to",
 			Value:       config.AuthTokenEnv,
 		}),
 		models.NewInputField(models.InputFieldOpts{

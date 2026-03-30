@@ -5,23 +5,24 @@ import (
 	"strings"
 )
 
-// bloopArt is the raw ASCII art for "bloop" in slant figlet font.
+// bloopArt in banner font — chunky, immediately readable.
 var bloopArt = []string{
-	"    __    __                ",
-	"   / /_  / /___  ____  ____ ",
-	"  / __ \\/ / __ \\/ __ \\/ __ \\",
-	" / /_/ / / /_/ / /_/ / /_/ /",
-	"/_.___/ /\\____/\\____/ .___/ ",
-	"                   /_/      ",
+	"#####  #       ####   ####  #####  ",
+	"#    # #      #    # #    # #    # ",
+	"#####  #      #    # #    # #    # ",
+	"#    # #      #    # #    # #####  ",
+	"#    # #      #    # #    # #      ",
+	"#####  ######  ####   ####  #      ",
 }
 
-// tunnelArt is the raw ASCII art for "tunnel" in slant figlet font.
+// tunnelArt in banner font.
 var tunnelArt = []string{
-	"  _____                      _   ",
-	" |_   _|__  _ __ _   _  __ _| |_ ",
-	"   | |/ _ \\| '__| | | |/ _` | __|",
-	"   | | (_) | |  | |_| | (_| | |_ ",
-	"   |_|\\___/|_|   \\__,_|\\__,_|\\__|",
+	"##### #    # #    # #    # ###### #       ",
+	"  #   #    # ##   # ##   # #      #       ",
+	"  #   #    # # #  # # #  # #####  #       ",
+	"  #   #    # #  # # #  # # #      #       ",
+	"  #   #    # #   ## #   ## #      #       ",
+	"  #    ####  #    # #    # ###### ######  ",
 }
 
 // gradientColors defines the indigo→cyan gradient (#6366f1 → #06b6d4).
