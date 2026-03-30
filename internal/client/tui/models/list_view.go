@@ -198,9 +198,3 @@ func (m ListViewModel) Selected() ListItem {
 	return ListItem{}
 }
 
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}

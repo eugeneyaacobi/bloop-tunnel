@@ -1,20 +1,24 @@
 package models
 
 import (
+	"time"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
 type StatusModel struct {
-	loading  bool
-	message  string
-	frame    int   // For loading animation
-	width     int
+	loading bool
+	message string
+	frame   int
+	width   int
 }
 
 type StatusLoadingMsg struct{ Message string }
 type StatusSuccessMsg struct{ Message string }
 type StatusErrorMsg struct{ Message string }
+
+type spinnerTickMsg struct{}
 
 func NewStatusModel() *StatusModel {
 	return &StatusModel{
@@ -34,27 +38,34 @@ func (m *StatusModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case StatusLoadingMsg:
 		m.loading = true
 		m.message = msg.Message
+		m.frame = 0
+		return m, spinTickCmd()
 	case StatusSuccessMsg:
 		m.loading = false
 		m.message = msg.Message
 	case StatusErrorMsg:
 		m.loading = false
 		m.message = msg.Message
+	case spinnerTickMsg:
+		if m.loading {
+			m.frame++
+			return m, spinTickCmd()
+		}
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
-	case tea.KeyMsg:
-		// Animate loading frame on any keypress
-		if m.loading {
-			m.frame = (m.frame + 1) % 4
-		}
 	}
 
 	return m, nil
 }
 
+func spinTickCmd() tea.Cmd {
+	return tea.Tick(80*time.Millisecond, func(_ time.Time) tea.Msg {
+		return spinnerTickMsg{}
+	})
+}
+
 func (m *StatusModel) View() string {
 	if m.loading {
-		// Simple loading animation
 		frames := []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 		frame := frames[m.frame%len(frames)]
 		spinnerText := lipgloss.NewStyle().

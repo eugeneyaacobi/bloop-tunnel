@@ -30,6 +30,7 @@ var (
 	footerStyle       = lipgloss.NewStyle().Foreground(mutedColor).MarginTop(2)
 	borderStyle       = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(primaryColor)
 	boxStyle        = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(primaryColor).Padding(1, 2)
+	descStyle       = lipgloss.NewStyle().Foreground(mutedColor).Italic(true).MarginLeft(4)
 )
 
 // Layout helpers

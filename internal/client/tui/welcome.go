@@ -8,8 +8,8 @@ import (
 )
 
 type WelcomeModel struct {
-	choices      []WelcomeChoice
-	selected     int
+	choices       []WelcomeChoice
+	selected      int
 	width, height int
 }
 
@@ -41,10 +41,12 @@ func NewWelcomeModel() WelcomeModel {
 				ID:          "quick",
 				Label:       "Quick Start",
 				Description: "Skip to output with default configuration",
-				Action:      func() tea.Cmd { return func() tea.Msg { return ScreenTransitionMsg{From: 0, To: 6} } }, // Jump to Output screen
+				Action:      func() tea.Cmd { return func() tea.Msg { return ScreenTransitionMsg{From: 0, To: 6} } },
 			},
 		},
 		selected: 0,
+		width:    80,
+		height:   24,
 	}
 }
 
@@ -77,53 +79,34 @@ func (m WelcomeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m WelcomeModel) View() string {
-	titleStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#007AFF")).
-		Bold(true).
-		MarginTop(1).
-		MarginBottom(1)
-
-	subtitleStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#8E8E93")).
-		Italic(true).
-		MarginBottom(2)
+	menuWidth := min(50, m.width-8)
 
 	choiceStyle := lipgloss.NewStyle().
 		Padding(0, 2).
 		MarginBottom(1).
-		Width(50)
+		Width(menuWidth)
 
-	selectedStyle := choiceStyle.Copy().
-		Background(lipgloss.Color("#007AFF")).
-		Foreground(lipgloss.Color("#FFFFFF")).
+	selectedStyle := lipgloss.NewStyle().
+		Padding(0, 2).
+		MarginBottom(1).
+		Width(menuWidth).
+		Background(primaryColor).
+		Foreground(textColor).
 		Bold(true)
-
-	descStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#8E8E93")).
-		Italic(true).
-		MarginLeft(4)
 
 	var choices []string
 	for i, choice := range m.choices {
 		if i == m.selected {
 			choices = append(choices, selectedStyle.Render(fmt.Sprintf("• %s", choice.Label)))
-			choices = append(choices, descStyle.Render(choice.Description))
 		} else {
 			choices = append(choices, choiceStyle.Render(fmt.Sprintf("  %s", choice.Label)))
-			choices = append(choices, descStyle.Render(choice.Description))
 		}
+		choices = append(choices, descStyle.Render("    "+choice.Description))
 	}
-
-	footerStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#8E8E93")).
-		MarginTop(2)
-
-	banner := WelcomeBanner
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
-		banner,
-		"",
+		WelcomeBanner,
 		titleStyle.Render("Welcome to bloop-tunnel Setup"),
 		subtitleStyle.Render("Choose how you'd like to configure your tunnels"),
 		"",
