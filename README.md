@@ -4,16 +4,25 @@ Securely expose local services to the internet with zero configuration. **bloop-
 
 ## Quick Start
 
+The **terminal UI (TUI)** is the recommended way to configure bloop-tunnel:
+
 ```bash
 # Install
 curl -fsSL https://install.bloop.to/install.sh | sh
 
-# Set up your first tunnel (interactive wizard)
+# Launch the interactive terminal setup wizard
 bloop-tunnel setup
 
 # Start tunneling
 bloop-tunnel run
 ```
+
+The `bloop-tunnel setup` wizard walks you through everything:
+- Choose production or local infrastructure
+- Configure auth tokens
+- Define tunnels for your services
+- Optional Docker discovery (pick running containers to expose)
+- Generate YAML config, `.env` file, or Docker Compose block
 
 Your local service is now available at `https://your-app.bloop.to`.
 
@@ -76,22 +85,18 @@ go install github.com/eugeneyaacobi/bloop-tunnel/cmd/bloop-tunnel@latest
 
 ## Configuration
 
-Choose the setup path that matches your workflow:
-
-### Interactive Setup (Recommended)
+**Terminal UI (Recommended)** — The `bloop-tunnel setup` wizard is the easiest way to configure everything. It handles:
+- Control plane and relay endpoints (production defaults provided)
+- Auth token configuration
+- Tunnel definitions
+- **Docker service discovery** — list running containers, see their ports, and add tunnels with one keypress
+- Output format selection (YAML file, `.env`, or Docker Compose block)
 
 ```bash
 bloop-tunnel setup
 ```
 
-The interactive wizard guides you through:
-- Control plane and relay endpoints (production defaults provided)
-- Auth token configuration
-- Tunnel definitions
-- Optional Docker service discovery
-- Output format selection (YAML file, `.env`, or Docker Compose)
-
-### Config File
+### Config File (Manual)
 
 Create `~/.bloop-tunnel/config.yaml`:
 
@@ -197,15 +202,18 @@ token_env: TUNNEL_TOKEN
 ```
 Protect with bearer token.
 
-### Docker Service Discovery
+### Docker Service Discovery (Terminal UI)
 
-Automatically discover local Docker containers and expose them as tunnels:
+Discover running Docker containers directly from the `bloop-tunnel setup` wizard:
+
+- **Lists all containers** with their images and exposed ports
+- **Shows candidate addresses** like `container-name:3000`
+- **One-key tunnel creation** — select a container and press Enter to add it as a tunnel
+- **No auto-exposure** — you choose what gets tunneled
 
 ```bash
 bloop-tunnel setup --discover-docker
 ```
-
-The wizard lists running containers with candidate ports and lets you select which services to expose. No automatic exposure—explicit confirmation required.
 
 ### Production Defaults
 

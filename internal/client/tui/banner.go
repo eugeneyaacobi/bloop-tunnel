@@ -10,7 +10,7 @@ const WelcomeBanner = `
  ║      ██   ██ ██  ██ ██ ██      ██      ██   ██ ██        ██         ║
  ║      ██   ██ ██   ███ ██      ███████ ██████  ███████   ███        ║
  ║                                                                  ║
- ║                   S E C U R E   T U N N E L S                      ║
+ ║              BLOOP TUNNEL | SECURE TUNNELS                       ║
  ║                                                                  ║
  ║              Expose localhost to the internet                         ║
  ║                  Zero configuration required                          ║
