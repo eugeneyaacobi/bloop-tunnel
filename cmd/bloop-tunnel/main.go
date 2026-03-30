@@ -12,6 +12,7 @@ import (
 	clientsetup "bloop-tunnel/internal/client/setup"
 	"bloop-tunnel/internal/config"
 	"bloop-tunnel/internal/logging"
+	clienttui "bloop-tunnel/internal/client/tui"
 	"bloop-tunnel/pkg/version"
 )
 
@@ -27,6 +28,15 @@ func main() {
 
 	if *showVersion {
 		fmt.Printf("bloop-tunnel %s (%s) %s\n", version.Version, version.Commit, version.Date)
+		return
+	}
+
+	// Default: if no flags and no config file, launch the TUI setup wizard
+	if flag.NFlag() == 0 && *configPath == "" {
+		if err := clienttui.Run(clienttui.DefaultConfig()); err != nil {
+			fmt.Fprintf(os.Stderr, "tui: %v\n", err)
+			os.Exit(1)
+		}
 		return
 	}
 
