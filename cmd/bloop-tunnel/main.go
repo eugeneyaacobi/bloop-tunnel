@@ -12,11 +12,14 @@ import (
 	clientsetup "bloop-tunnel/internal/client/setup"
 	"bloop-tunnel/internal/config"
 	"bloop-tunnel/internal/logging"
+	clienttui "bloop-tunnel/internal/client/tui"
 	"bloop-tunnel/pkg/version"
 )
 
 func main() {
 	args := os.Args[1:]
+
+	// "setup" subcommand: flag-driven config generation (no TUI, no prompts)
 	if len(args) > 0 && args[0] == "setup" {
 		os.Exit(runSetup(args[1:]))
 	}
@@ -27,6 +30,12 @@ func main() {
 
 	if *showVersion {
 		fmt.Printf("bloop-tunnel %s (%s) %s\n", version.Version, version.Commit, version.Date)
+		return
+	}
+
+	// No config file and no flags → launch TUI setup wizard
+	if flag.NFlag() == 0 && *configPath == "" {
+		launchTUI()
 		return
 	}
 
@@ -90,18 +99,24 @@ func main() {
 	}
 }
 
+func launchTUI() {
+	if err := clienttui.Run(clienttui.DefaultConfig()); err != nil {
+		fmt.Fprintf(os.Stderr, "tui: %v\n", err)
+		os.Exit(1)
+	}
+}
+
 func runSetup(args []string) int {
 	fs := flag.NewFlagSet("setup", flag.ContinueOnError)
 	fs.SetOutput(os.Stderr)
 
 	configPath := fs.String("config", "deploy/examples/client.example.yaml", "Write YAML scaffold to this path, or '-' for stdout")
 	output := fs.String("output", string(clientsetup.OutputYAML), "Output mode: yaml|env-file|compose-block")
-	nonInteractive := fs.Bool("non-interactive", false, "Generate scaffold output without prompts")
 	controlPlaneURL := fs.String("control-plane-url", config.DefaultControlPlaneURL, "Control plane URL to embed in generated output")
 	relayURL := fs.String("relay-url", config.DefaultRelayURL, "Relay URL to embed in generated output")
 	authTokenEnv := fs.String("auth-token-env", "BLOOP_CLIENT_TOKEN", "Environment variable name holding the relay auth token")
 	enrollmentTokenEnv := fs.String("enrollment-token-env", "", "Environment variable name holding the enrollment token")
-	discoverDocker := fs.Bool("discover-docker", false, "Offer opt-in Docker service discovery during interactive setup")
+	discoverDocker := fs.Bool("discover-docker", false, "Include Docker Compose service discovery in generated output")
 
 	if err := fs.Parse(args); err != nil {
 		return 2
@@ -110,7 +125,7 @@ func runSetup(args []string) int {
 	err := clientsetup.Run(os.Stdout, os.Stderr, clientsetup.Options{
 		ConfigPath:         *configPath,
 		OutputMode:         clientsetup.OutputMode(*output),
-		NonInteractive:     *nonInteractive,
+		NonInteractive:     true,
 		ControlPlaneURL:    *controlPlaneURL,
 		RelayURL:           *relayURL,
 		AuthTokenEnv:       *authTokenEnv,

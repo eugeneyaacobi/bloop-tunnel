@@ -6,19 +6,19 @@ import (
 )
 
 type QuitConfirmModel struct {
-	message string
-	options []string
-	selected int
+	message       string
+	options       []string
+	selected      int
 	width, height int
 }
 
 func NewQuitConfirmModel() QuitConfirmModel {
 	return QuitConfirmModel{
-		message: "You have unsaved changes. Are you sure you want to quit?",
-		options: []string{"Quit", "Cancel"},
+		message:  "You have unsaved changes. Are you sure you want to quit?",
+		options:  []string{"Quit", "Cancel"},
 		selected: 1, // Default to Cancel
-		width:   60,
-		height:  10,
+		width:    80,
+		height:   24,
 	}
 }
 
@@ -55,50 +55,29 @@ func (m QuitConfirmModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m QuitConfirmModel) View() string {
-	messageStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#FFFFFF")).
-		MarginBottom(2)
-
-	optionStyle := lipgloss.NewStyle().
-		Padding(0, 2).
-		MarginRight(2).
-		Width(25)
-
-	selectedStyle := optionStyle.Copy().
-		Background(lipgloss.Color("#007AFF")).
-		Foreground(lipgloss.Color("#FFFFFF")).
-		Bold(true)
+	messageSty := lipgloss.NewStyle().Foreground(textColor).MarginBottom(2)
 
 	var options []string
 	for i, opt := range m.options {
 		if i == m.selected {
-			options = append(options, selectedStyle.Render(opt))
+			options = append(options, optionSelectedStyle.Render(opt))
 		} else {
 			options = append(options, optionStyle.Render(opt))
 		}
 	}
 
-	boxStyle := lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("#007AFF")).
-		Padding(1, 2).
-		Width(52).
-		Align(lipgloss.Center)
-
 	boxContent := lipgloss.JoinVertical(
 		lipgloss.Center,
-		messageStyle.Render(m.message),
+		messageSty.Render(m.message),
 		"",
 		lipgloss.JoinHorizontal(lipgloss.Center, options...),
 	)
 
-	box := boxStyle.Render(boxContent)
+	box := dialogBoxStyle.Render(boxContent)
 
-	return lipgloss.Place(
-		m.width,
-		m.height,
-		lipgloss.Center,
-		lipgloss.Top,
-		box,
-	)
+	// Guard against zero dimensions
+	if m.width > 0 && m.height > 0 {
+		return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, box)
+	}
+	return box
 }

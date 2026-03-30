@@ -6,16 +6,16 @@ import (
 )
 
 type SelectFieldModel struct {
-	label       string
-	options     []string
-	selected    int
-	focused     bool
+	label    string
+	options  []string
+	selected int
+	focused  bool
 }
 
 type SelectFieldOpts struct {
-	Label       string
-	Options     []string
-	Selected    int
+	Label    string
+	Options  []string
+	Selected int
 }
 
 type SelectFieldChangeMsg struct{ Index int }
@@ -55,10 +55,9 @@ func (m SelectFieldModel) Update(msg tea.Msg) (SelectFieldModel, tea.Cmd) {
 		case "end", "G":
 			m.selected = len(m.options) - 1
 		case "space":
-			// Cycle to next option
 			m.selected = (m.selected + 1) % len(m.options)
 			return m, func() tea.Msg { return SelectFieldChangeMsg{Index: m.selected} }
-		case "enter", " ":
+		case "enter":
 			return m, func() tea.Msg { return SelectFieldChangeMsg{Index: m.selected} }
 		}
 	case SelectFieldChangeMsg:
@@ -68,54 +67,33 @@ func (m SelectFieldModel) Update(msg tea.Msg) (SelectFieldModel, tea.Cmd) {
 	return m, nil
 }
 
+var (
+	selectLabelSty   = lipgloss.NewStyle().Foreground(lipgloss.Color("#007AFF")).Bold(true)
+	selectOptSty     = lipgloss.NewStyle().Padding(0, 1).MarginRight(1)
+	selectActiveSty  = lipgloss.NewStyle().Padding(0, 1).MarginRight(1).Background(lipgloss.Color("#007AFF")).Foreground(lipgloss.Color("#FFFFFF")).Bold(true)
+	selectBoxSty     = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("#007AFF")).Padding(0, 1).Width(52)
+	selectBoxFocused = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("#007AFF")).Bold(true).Padding(0, 1).Width(52)
+)
+
 func (m SelectFieldModel) View() string {
-	labelStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#007AFF")).
-		Bold(true).
-		MarginBottom(0)
-
-	optionStyle := lipgloss.NewStyle().
-		Padding(0, 1).
-		MarginRight(1)
-
-	selectedStyle := optionStyle.Copy().
-		Foreground(lipgloss.Color("#007AFF")).
-		Bold(true)
-
 	var rows []string
 	for i, opt := range m.options {
-		prefix := "  "
 		if i == m.selected && m.focused {
-			prefix = "● "
-			selectedStyle = selectedStyle.Copy().
-				Background(lipgloss.Color("#007AFF")).
-				Foreground(lipgloss.Color("#FFFFFF"))
+			rows = append(rows, "● "+selectActiveSty.Render(opt))
 		} else if i == m.selected {
-			prefix = "○ "
+			rows = append(rows, "○ "+selectOptSty.Render(opt))
+		} else {
+			rows = append(rows, "  "+selectOptSty.Render(opt))
 		}
-		rows = append(rows, prefix+selectedStyle.Render(opt))
 	}
 
-	boxStyle := lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("#007AFF")).
-		Padding(0, 1).
-		Width(52)
-
+	boxSty := selectBoxSty
 	if m.focused {
-		boxStyle = boxStyle.Copy().
-			Foreground(lipgloss.Color("#007AFF")).
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("#007AFF")).
-			Bold(true)
+		boxSty = selectBoxFocused
 	}
 
-	label := labelStyle.Render(m.label + ":")
-
-	return lipgloss.JoinVertical(
-		lipgloss.Left,
-		boxStyle.Render(lipgloss.JoinVertical(lipgloss.Left, label, lipgloss.JoinVertical(lipgloss.Left, rows...))),
-	)
+	label := selectLabelSty.Render(m.label + ":")
+	return boxSty.Render(lipgloss.JoinVertical(lipgloss.Left, label, lipgloss.JoinVertical(lipgloss.Left, rows...)))
 }
 
 func (m SelectFieldModel) WithSelection(index int) SelectFieldModel {
