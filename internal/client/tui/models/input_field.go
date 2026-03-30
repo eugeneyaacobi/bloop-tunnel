@@ -22,13 +22,16 @@ type InputFieldModel struct {
 type InputFieldOpts struct {
 	Label       string
 	Placeholder string
-	Value        string
-	Validation   func(string) error
-	IsPassword   bool
+	Value       string
+	Validation  func(string) error
+	IsPassword  bool
 }
 
 type InputFieldFocusedMsg struct{ Index int }
-type InputFieldValueChangeMsg struct{ Index int; Value string }
+type InputFieldValueChangeMsg struct {
+	Index int
+	Value string
+}
 
 func NewInputField(opts InputFieldOpts) InputFieldModel {
 	cursorPos := len(opts.Value)
@@ -55,18 +58,18 @@ func (m InputFieldModel) Update(msg tea.Msg) (InputFieldModel, tea.Cmd) {
 			if m.cursorPos > 0 {
 				m.cursorPos--
 			}
-		case "right", "ctrl+l":
+		case "right":
 			if m.cursorPos < utf8.RuneCountInString(m.value) {
 				m.cursorPos++
 			}
-		case "backspace", "ctrl+h":
+		case "backspace":
 			if m.cursorPos > 0 {
 				runes := []rune(m.value)
 				m.value = string(append(runes[:m.cursorPos-1], runes[m.cursorPos:]...))
 				m.cursorPos--
 				m.validate()
 			}
-		case "delete", "ctrl+d":
+		case "delete":
 			if m.cursorPos < utf8.RuneCountInString(m.value) {
 				runes := []rune(m.value)
 				m.value = string(append(runes[:m.cursorPos], runes[m.cursorPos+1:]...))
@@ -87,6 +90,16 @@ func (m InputFieldModel) Update(msg tea.Msg) (InputFieldModel, tea.Cmd) {
 		}
 	case InputFieldFocusedMsg:
 		m.focused = true
+	default:
+		// Handle rune input for typing
+		if keyMsg, ok := msg.(tea.KeyMsg); ok {
+			if keyMsg.Type == tea.KeyRunes {
+				runes := []rune(m.value)
+				m.value = string(append(runes[:m.cursorPos], append(keyMsg.Runes, runes[m.cursorPos:]...)...))
+				m.cursorPos += len(keyMsg.Runes)
+				m.validate()
+			}
+		}
 	}
 
 	return m, nil
@@ -103,91 +116,56 @@ func (m *InputFieldModel) validate() {
 }
 
 func (m InputFieldModel) View() string {
-	baseStyle := lipgloss.NewStyle().
-		Padding(0, 2).
-		Width(50)
+	labelSty := lipgloss.NewStyle().Foreground(lipgloss.Color("#007AFF")).Bold(true)
+	valueSty := lipgloss.NewStyle().Foreground(lipgloss.Color("#FFFFFF"))
+	errSty := lipgloss.NewStyle().Foreground(lipgloss.Color("#FF3B30"))
 
-	labelStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#007AFF")).
-		Bold(true).
-		MarginBottom(0)
+	// Empty state — show placeholder
+	if m.value == "" && m.placeholder != "" && !m.isPassword {
+		placeholderSty := lipgloss.NewStyle().Foreground(lipgloss.Color("#8E8E93")).Italic(true)
+		return labelSty.Render(m.label+":") + "\n" + placeholderSty.Render(m.placeholder)
+	}
 
-	placeholderStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#8E8E93")).
-		Italic(true)
-
-	valueStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#FFFFFF"))
-
-	errorStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#FF3B30")).
-		MarginTop(0)
-
+	// Build display value with cursor
+	runes := []rune(m.value)
 	if m.isPassword {
-		valueStyle = valueStyle.Copy().
-			Foreground(lipgloss.Color("#8E8E93")) // Muted color for password
-	} else {
-		if m.value == "" && m.placeholder != "" {
-			return lipgloss.JoinHorizontal(
-				lipgloss.Left,
-				baseStyle.Render(""),
-				labelStyle.Render(m.label + ":"),
-				placeholderStyle.Render(m.placeholder),
-			)
+		runes = []rune(strings.Repeat("•", utf8.RuneCountInString(m.value)))
+	}
+
+	// Insert cursor block at position
+	var display string
+	if m.focused {
+		before := string(runes[:m.cursorPos])
+		after := ""
+		if m.cursorPos < len(runes) {
+			after = string(runes[m.cursorPos:])
 		}
-	}
-
-	var label string
-	if m.value != "" {
-		label = labelStyle.Render(m.label + ":")
-	}
-
-	// Show cursor position
-	valueRunes := []rune(m.value)
-	if m.isPassword {
-		valueRunes = []rune(strings.Repeat("•", utf8.RuneCountInString(m.value)))
-	}
-	cursorLine := strings.Repeat(" ", m.cursorPos)
-	if m.cursorPos < len(valueRunes) {
-		cursorLine += "▊"
-	}
-
-	valueDisplay := string(valueRunes[:m.cursorPos]) + cursorLine + string(valueRunes[m.cursorPos:])
-
-	var content string
-	if m.errorMsg != "" {
-		content = lipgloss.JoinVertical(
-			lipgloss.Left,
-			baseStyle.Render(""),
-			label,
-			valueStyle.Render(valueDisplay),
-			"",
-			errorStyle.Render("  └─ " + m.errorMsg),
-		)
+		display = before + "▊" + after
 	} else {
-		content = lipgloss.JoinVertical(
-			lipgloss.Left,
-			baseStyle.Render(""),
-			label,
-			valueStyle.Render(valueDisplay),
-		)
+		display = string(runes)
 	}
 
-	boxStyle := lipgloss.NewStyle().
+	var b strings.Builder
+	b.WriteString(labelSty.Render(m.label + ":"))
+	b.WriteString("\n")
+	b.WriteString(valueSty.Render(display))
+
+	if m.errorMsg != "" {
+		b.WriteString("\n")
+		b.WriteString(errSty.Render("  └─ " + m.errorMsg))
+	}
+
+	boxSty := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color("#007AFF")).
 		Padding(0, 1).
 		Width(52)
 
 	if m.focused {
-		boxStyle = boxStyle.Copy().
-			Foreground(lipgloss.Color("#007AFF")).
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("#007AFF")).
-			Bold(true)
+		boxSty = boxSty.Bold(true)
 	}
 
-	return boxStyle.Render(content)
+	return boxSty.Render(b.String())
 }
 
 func (m InputFieldModel) WithValue(value string) InputFieldModel {

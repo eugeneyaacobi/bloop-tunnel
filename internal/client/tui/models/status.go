@@ -1,16 +1,15 @@
 package models
 
 import (
-	"time"
-
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/lipgloss"
 )
 
 type StatusModel struct {
 	loading bool
 	message string
-	frame   int
+	spinner spinner.Model
 	width   int
 }
 
@@ -18,13 +17,14 @@ type StatusLoadingMsg struct{ Message string }
 type StatusSuccessMsg struct{ Message string }
 type StatusErrorMsg struct{ Message string }
 
-type spinnerTickMsg struct{}
-
 func NewStatusModel() *StatusModel {
+	s := spinner.New()
+	s.Spinner = spinner.Dot
+	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("#007AFF"))
 	return &StatusModel{
 		loading: false,
 		message: "",
-		frame:   0,
+		spinner: s,
 		width:   60,
 	}
 }
@@ -38,18 +38,18 @@ func (m *StatusModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case StatusLoadingMsg:
 		m.loading = true
 		m.message = msg.Message
-		m.frame = 0
-		return m, spinTickCmd()
+		return m, m.spinner.Tick
 	case StatusSuccessMsg:
 		m.loading = false
 		m.message = msg.Message
 	case StatusErrorMsg:
 		m.loading = false
 		m.message = msg.Message
-	case spinnerTickMsg:
+	case spinner.TickMsg:
 		if m.loading {
-			m.frame++
-			return m, spinTickCmd()
+			var cmd tea.Cmd
+			m.spinner, cmd = m.spinner.Update(msg)
+			return m, cmd
 		}
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
@@ -58,30 +58,19 @@ func (m *StatusModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func spinTickCmd() tea.Cmd {
-	return tea.Tick(80*time.Millisecond, func(_ time.Time) tea.Msg {
-		return spinnerTickMsg{}
-	})
-}
-
 func (m *StatusModel) View() string {
 	if m.loading {
-		frames := []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
-		frame := frames[m.frame%len(frames)]
-		spinnerText := lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#007AFF")).
-			Render(frame + " " + m.message)
+		text := m.spinner.View() + " " + m.message
 		return lipgloss.NewStyle().
 			Width(m.width).
 			Align(lipgloss.Center).
-			Render(spinnerText)
+			Render(text)
 	}
 
-	statusStyle := lipgloss.NewStyle().
+	return lipgloss.NewStyle().
 		Width(m.width).
-		Align(lipgloss.Center)
-
-	return statusStyle.Render(m.message)
+		Align(lipgloss.Center).
+		Render(m.message)
 }
 
 func (m *StatusModel) WithLoading(message string) *StatusModel {

@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -12,24 +14,31 @@ type ListItem struct {
 }
 
 type ListViewModel struct {
-	items        []ListItem
-	selected     int
-	cursorPos    int // Visible scrolling position
-	height       int // Number of visible items
-	width        int
+	items     []ListItem
+	selected  int
+	cursorPos int // Visible scrolling position
+	height    int // Number of visible items
+	width     int
 }
 
 type ListSelectMsg struct{ Index int }
 type ListDeleteMsg struct{ Index int }
 type ListEditMsg struct{ Index int }
 
+var (
+	listEmptySty    = lipgloss.NewStyle().Foreground(lipgloss.Color("#8E8E93")).Italic(true)
+	listItemSty     = lipgloss.NewStyle().Padding(0, 1).MarginRight(1)
+	listSelectedSty = lipgloss.NewStyle().Padding(0, 1).MarginRight(1).Background(lipgloss.Color("#007AFF")).Foreground(lipgloss.Color("#FFFFFF")).Bold(true)
+	listBoxSty      = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("#007AFF")).Padding(0, 1)
+)
+
 func NewListViewModel(items []ListItem) ListViewModel {
 	return ListViewModel{
 		items:     items,
 		selected:  0,
 		cursorPos: 0,
-		height:    10, // Default visible items
-		width:     60, // Default width
+		height:    10,
+		width:     60,
 	}
 }
 
@@ -71,7 +80,6 @@ func (m ListViewModel) Update(msg tea.Msg) (ListViewModel, tea.Cmd) {
 		m.scrollToShowSelection()
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
-		// Reserve space for header/footer
 		visibleHeight := m.height - 10
 		if visibleHeight < 5 {
 			visibleHeight = 5
@@ -136,55 +144,43 @@ func (m *ListViewModel) MoveSelection(delta int) *ListViewModel {
 
 func (m *ListViewModel) View() string {
 	if len(m.items) == 0 {
-		return lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#8E8E93")).
-			Italic(true).
-			Render("No items available.")
+		return listEmptySty.Render("No items available.")
 	}
 
-	// Calculate visible items
 	visibleTop := m.cursorPos
 	visibleBottom := min(m.cursorPos+m.height, len(m.items))
 	visibleItems := m.items[visibleTop:visibleBottom]
 
-	// Render visible items with selection indicator
-	baseStyle := lipgloss.NewStyle().
-		Padding(0, 1).
-		MarginRight(1).
-		Width(m.width - 4)
+	itemWidth := m.width - 4
+	if itemWidth < 10 {
+		itemWidth = 10
+	}
 
-	selectedStyle := baseStyle.Copy().
-		Background(lipgloss.Color("#007AFF")).
-		Foreground(lipgloss.Color("#FFFFFF")).
-		Bold(true)
+	baseSty := listItemSty.Width(itemWidth)
+	selSty := listSelectedSty.Width(itemWidth)
 
 	var rows []string
 	for i, item := range visibleItems {
 		globalIndex := visibleTop + i
-		prefix := "  "
+		text := item.Label
+		if item.Details != "" {
+			text = fmt.Sprintf("%s %s", item.Label, item.Details)
+		}
 		if globalIndex == m.selected {
-			prefix = "● "
-			rows = append(rows, selectedStyle.Render(prefix+item.Label+item.Details))
+			rows = append(rows, selSty.Render("● "+text))
 		} else {
-			rows = append(rows, baseStyle.Render(prefix+item.Label+item.Details))
+			rows = append(rows, baseSty.Render("  "+text))
 		}
 	}
 
-	// Add scroll indicators
 	if visibleTop > 0 {
 		rows = append([]string{"▲"}, rows...)
 	}
-	if visibleBottom < len(m.items)-1 {
+	if visibleBottom < len(m.items) {
 		rows = append(rows, "▼")
 	}
 
-	boxStyle := lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("#007AFF")).
-		Padding(0, 1).
-		Width(m.width)
-
-	return boxStyle.Render(lipgloss.JoinVertical(lipgloss.Left, rows...))
+	return listBoxSty.Width(m.width).Render(lipgloss.JoinVertical(lipgloss.Left, rows...))
 }
 
 func (m ListViewModel) SelectedIndex() int {
@@ -197,4 +193,3 @@ func (m ListViewModel) Selected() ListItem {
 	}
 	return ListItem{}
 }
-
